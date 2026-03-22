@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeu PGP – Principes Généraux de Prévention</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1923;
+    --card-bg: #1a2535;
+    --border: #253447;
+    --red: #B83251;
+    --navy: #1E2D4E;
+    --orange: #E8A020;
+    --blue-light: #3A7BD5;
+    --text: #e8edf5;
+    --muted: #8899aa;
+    --green: #2ECC71;
+    --gold: #F4D03F;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lexend', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Background texture ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(184,50,81,.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 90%, rgba(30,45,78,.5) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* ── HEADER ── */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 0 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .logo-block { display: flex; align-items: center; gap: 14px; }
+  .logo-badge {
+    background: var(--red); color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem; letter-spacing: 2px;
+    padding: 6px 14px; border-radius: 8px;
+  }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem; letter-spacing: 3px;
+    color: #fff; line-height: 1;
+  }
+  header p { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+  .score-bar {
+    display: flex; gap: 20px; align-items: center;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 50px; padding: 8px 20px;
+  }
+  .score-item { text-align: center; }
+  .score-item .val { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--orange); }
+  .score-item .lbl { font-size: .68rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 6px; margin-bottom: 28px; flex-wrap: wrap; }
+  .tab {
+    padding: 8px 18px; border-radius: 50px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--muted);
+    font-family: 'Lexend', sans-serif; font-size: .8rem; font-weight: 500;
+    cursor: pointer; transition: all .2s;
+  }
+  .tab:hover { border-color: var(--orange); color: var(--orange); }
+  .tab.active { background: var(--orange); border-color: var(--orange); color: #111; font-weight: 700; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.visible { display: block; animation: fadeUp .35s ease; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(16px);} to { opacity:1; transform: none;} }
+
+  /* ══════════════════════════════════
+     SCREEN 1 — GALERIE DES 9 PGP
+  ══════════════════════════════════ */
+  .pgp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+  }
+  .pgp-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 20px 20px;
+    cursor: pointer;
+    transition: all .25s;
+    position: relative; overflow: hidden;
+  }
+  .pgp-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent, var(--red));
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .pgp-card:hover { transform: translateY(-4px); border-color: var(--accent, var(--red)); box-shadow: 0 12px 32px rgba(0,0,0,.4); }
+  .pgp-num {
+    font-family: 'Bebas Neue', sans-serif; font-size: 3rem;
+    color: var(--accent, var(--red)); opacity: .25;
+    position: absolute; top: 10px; right: 16px; line-height: 1;
+  }
+  .pgp-icon { font-size: 2.2rem; margin-bottom: 10px; }
+  .pgp-title {
+    font-size: .95rem; font-weight: 700; color: #fff;
+    margin-bottom: 8px; line-height: 1.3;
+  }
+  .pgp-desc { font-size: .78rem; color: var(--muted); line-height: 1.6; }
+  .pgp-tag {
+    display: inline-block; margin-top: 12px;
+    font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px;
+    background: rgba(255,255,255,.07); color: var(--accent, var(--red));
+    border: 1px solid currentColor;
+  }
+  .pgp-examples {
+    margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);
+    display: none;
+  }
+  .pgp-card.expanded .pgp-examples { display: block; }
+  .pgp-examples h4 { font-size: .72rem; color: var(--orange); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .pgp-examples li { font-size: .75rem; color: var(--muted); margin-bottom: 4px; padding-left: 12px; position: relative; }
+  .pgp-examples li::before { content: '→'; position: absolute; left: 0; color: var(--accent, var(--red)); font-size: .7rem; }
+
+  /* ══════════════════════════════════
+     SCREEN 2 — JEU DE TRI
+  ══════════════════════════════════ */
+  .game-intro {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+    margin-bottom: 24px; display: flex; gap: 20px; align-items: center;
+    flex-wrap: wrap;
+  }
+  .game-intro .icon { font-size: 2.8rem; }
+  .game-intro h2 { font-size: 1.1rem; font-weight: 700; color: var(--orange); margin-bottom: 4px; }
+  .game-intro p { font-size: .8rem; color: var(--muted); line-height: 1.6; }
+
+  .scenario-box {
+    background: linear-gradient(135deg, #1a2d4e, #1a2535);
+    border: 2px solid var(--blue-light);
+    border-radius: var(--radius); padding: 24px;
+    margin-bottom: 24px; position: relative;
+  }
+  .scenario-label {
+    position: absolute; top: -1px; left: 20px;
+    background: var(--blue-light); color: #fff;
+    font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 12px; border-radius: 0 0 8px 8px;
+  }
+  .scenario-num {
+    font-family: 'Bebas Neue', sans-serif; font-size: .9rem;
+    color: var(--muted); margin-bottom: 6px; margin-top: 10px;
+  }
+  .scenario-text {
+    font-size: 1rem; font-weight: 500; color: #fff;
+    line-height: 1.65; margin-bottom: 16px;
+  }
+  .scenario-question {
+    font-size: .85rem; color: var(--orange); font-weight: 600;
+  }
+
+  .choices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px; margin-bottom: 24px;
+  }
+  .choice-btn {
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    cursor: pointer; text-align: left;
+    transition: all .2s; color: var(--text);
+    font-family: 'Lexend', sans-serif; font-size: .8rem; font-weight: 500;
+  }
+  .choice-btn .choice-num {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1rem;
+    color: var(--muted); display: block; margin-bottom: 4px;
+  }
+  .choice-btn:hover { border-color: var(--orange); background: rgba(232,160,32,.08); }
+  .choice-btn.correct { border-color: var(--green) !important; background: rgba(46,204,113,.12) !important; color: var(--green); }
+  .choice-btn.wrong { border-color: var(--red) !important; background: rgba(184,50,81,.12) !important; color: var(--red); }
+  .choice-btn.reveal { border-color: var(--green); background: rgba(46,204,113,.08); color: var(--green); opacity: .7; }
+  .choice-btn:disabled { cursor: not-allowed; }
+
+  .feedback-box {
+    border-radius: var(--radius); padding: 18px 20px;
+    margin-bottom: 20px; display: none;
+    border: 1.5px solid;
+  }
+  .feedback-box.visible { display: block; animation: fadeUp .3s ease; }
+  .feedback-box.ok { border-color: var(--green); background: rgba(46,204,113,.08); }
+  .feedback-box.ko { border-color: var(--red); background: rgba(184,50,81,.08); }
+  .feedback-box h3 { font-size: .9rem; font-weight: 700; margin-bottom: 6px; }
+  .feedback-box.ok h3 { color: var(--green); }
+  .feedback-box.ko h3 { color: var(--red); }
+  .feedback-box p { font-size: .82rem; color: var(--muted); line-height: 1.6; }
+  .feedback-box .principle { font-size: .75rem; color: var(--orange); font-weight: 600; margin-top: 8px; }
+
+  .btn-next {
+    background: var(--orange); color: #111; border: none;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 2px;
+    padding: 12px 32px; border-radius: 8px; cursor: pointer;
+    display: none; transition: all .2s;
+  }
+  .btn-next:hover { background: #f0b030; transform: scale(1.03); }
+  .btn-next.visible { display: inline-block; }
+
+  .progress-bar-wrap { margin-bottom: 20px; }
+  .progress-bar-wrap .lbl { display: flex; justify-content: space-between; font-size: .72rem; color: var(--muted); margin-bottom: 6px; }
+  .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--red), var(--orange)); border-radius: 3px; transition: width .4s ease; }
+
+  /* ══════════════════════════════════
+     SCREEN 3 — HIÉRARCHIE
+  ══════════════════════════════════ */
+  .hier-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 3px; color: var(--orange); margin-bottom: 6px; }
+  .hier-sub { font-size: .82rem; color: var(--muted); margin-bottom: 28px; }
+
+  .pyramid {
+    display: flex; flex-direction: column; gap: 10px;
+    max-width: 680px; margin: 0 auto;
+  }
+  .pyra-level {
+    display: flex; align-items: stretch; gap: 12px;
+    animation: fadeUp .5s ease both;
+  }
+  .pyra-level:nth-child(1) { animation-delay: .05s; }
+  .pyra-level:nth-child(2) { animation-delay: .1s; }
+  .pyra-level:nth-child(3) { animation-delay: .15s; }
+  .pyra-level:nth-child(4) { animation-delay: .2s; }
+
+  .pyra-rank {
+    width: 44px; min-height: 70px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem;
+    border-radius: 10px; flex-shrink: 0;
+  }
+  .pyra-content {
+    flex: 1; border-radius: 10px; padding: 16px 20px;
+    border: 1.5px solid;
+  }
+  .pyra-content h3 { font-size: .92rem; font-weight: 700; margin-bottom: 5px; }
+  .pyra-content p { font-size: .78rem; line-height: 1.55; }
+  .pyra-content .examples { margin-top: 8px; font-size: .73rem; color: var(--muted); }
+
+  .lv1 .pyra-rank { background: rgba(46,204,113,.2); color: var(--green); }
+  .lv1 .pyra-content { border-color: var(--green); background: rgba(46,204,113,.07); }
+  .lv1 h3 { color: var(--green); }
+
+  .lv2 .pyra-rank { background: rgba(58,123,213,.2); color: var(--blue-light); }
+  .lv2 .pyra-content { border-color: var(--blue-light); background: rgba(58,123,213,.07); }
+  .lv2 h3 { color: var(--blue-light); }
+
+  .lv3 .pyra-rank { background: rgba(232,160,32,.2); color: var(--orange); }
+  .lv3 .pyra-content { border-color: var(--orange); background: rgba(232,160,32,.07); }
+  .lv3 h3 { color: var(--orange); }
+
+  .lv4 .pyra-rank { background: rgba(184,50,81,.2); color: var(--red); }
+  .lv4 .pyra-content { border-color: var(--red); background: rgba(184,50,81,.07); }
+  .lv4 h3 { color: var(--red); }
+
+  .dernier-recours {
+    text-align: center; font-size: .72rem; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--red); text-transform: uppercase;
+    background: rgba(184,50,81,.1); border: 1px dashed var(--red);
+    border-radius: 6px; padding: 6px; margin-top: 8px;
+  }
+
+  /* ══════════════════════════════════
+     SCREEN 4 — JEU VRAI/FAUX
+  ══════════════════════════════════ */
+  .vf-card {
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 28px 26px;
+    max-width: 700px; margin: 0 auto;
+    text-align: center;
+  }
+  .vf-badge {
+    display: inline-block; margin-bottom: 20px;
+    background: var(--navy); color: var(--orange);
+    font-size: .7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 5px 16px; border-radius: 20px; border: 1px solid var(--orange);
+  }
+  .vf-statement {
+    font-size: 1.1rem; font-weight: 500; color: #fff;
+    line-height: 1.65; margin-bottom: 28px;
+    min-height: 80px; display: flex; align-items: center; justify-content: center;
+  }
+  .vf-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .vf-btn {
+    padding: 14px 40px; border-radius: 10px; border: 2px solid;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 2px;
+    cursor: pointer; transition: all .2s; min-width: 140px;
+  }
+  .vf-btn.vrai { border-color: var(--green); color: var(--green); background: transparent; }
+  .vf-btn.vrai:hover { background: rgba(46,204,113,.15); }
+  .vf-btn.faux { border-color: var(--red); color: var(--red); background: transparent; }
+  .vf-btn.faux:hover { background: rgba(184,50,81,.15); }
+  .vf-btn.selected-ok { background: var(--green); color: #fff; border-color: var(--green); }
+  .vf-btn.selected-ko { background: var(--red); color: #fff; border-color: var(--red); }
+  .vf-btn:disabled { cursor: not-allowed; opacity: .5; }
+
+  .vf-feedback {
+    margin-top: 20px; border-radius: 10px; padding: 14px 18px;
+    display: none; text-align: left;
+  }
+  .vf-feedback.visible { display: block; animation: fadeUp .3s ease; }
+  .vf-feedback.ok { background: rgba(46,204,113,.1); border: 1px solid var(--green); color: var(--green); }
+  .vf-feedback.ko { background: rgba(184,50,81,.1); border: 1px solid var(--red); color: var(--red); }
+  .vf-feedback p { font-size: .82rem; line-height: 1.6; margin-bottom: 4px; }
+  .vf-feedback .pgp-ref { font-size: .73rem; color: var(--orange); font-weight: 600; margin-top: 6px; }
+
+  /* ══════════════════════════════════
+     RESULTS
+  ══════════════════════════════════ */
+  .results-wrap {
+    text-align: center; padding: 40px 0;
+    display: none;
+  }
+  .results-wrap.visible { display: block; animation: fadeUp .4s ease; }
+  .results-wrap h2 { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; letter-spacing: 4px; color: var(--orange); }
+  .results-wrap .result-score { font-size: 5rem; font-family: 'Bebas Neue', sans-serif; color: #fff; line-height: 1; }
+  .results-wrap .result-sub { font-size: .9rem; color: var(--muted); margin: 8px 0 28px; }
+  .medal { font-size: 4rem; margin-bottom: 12px; }
+  .btn-restart {
+    background: var(--red); color: #fff; border: none;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 2px;
+    padding: 12px 32px; border-radius: 8px; cursor: pointer; transition: all .2s;
+    margin-right: 12px;
+  }
+  .btn-restart:hover { background: #d03060; transform: scale(1.03); }
+
+  /* ── Misc ── */
+  .divider { height: 1px; background: var(--border); margin: 32px 0; }
+  .tip-box {
+    background: rgba(232,160,32,.07); border: 1px solid rgba(232,160,32,.3);
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 24px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .tip-box .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .tip-box p { font-size: .8rem; color: var(--muted); line-height: 1.6; }
+  .tip-box strong { color: var(--orange); }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.3rem; }
+    .pgp-grid { grid-template-columns: 1fr; }
+    .choices-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-block">
+      <div class="logo-badge">SST</div>
+      <div>
+        <h1>9 PGP — Jeu Pédagogique</h1>
+        <p>Principes Généraux de Prévention · Domaine 2 · C6–C7–C8</p>
+      </div>
+    </div>
+    <div class="score-bar">
+      <div class="score-item"><div class="val" id="scoreVal">0</div><div class="lbl">Points</div></div>
+      <div class="score-item"><div class="val" id="streakVal">0</div><div class="lbl">Série</div></div>
+      <div class="score-item"><div class="val" id="totalVal">0</div><div class="lbl">Réponses</div></div>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showScreen('galerie')">📚 Mémo PGP</button>
+    <button class="tab" onclick="showScreen('jeu')">🎯 Associer le principe</button>
+    <button class="tab" onclick="showScreen('hierarchie')">🏔️ Hiérarchie</button>
+    <button class="tab" onclick="showScreen('vraifaux')">⚡ Vrai ou Faux</button>
+  </div>
+
+  <!-- ══ SCREEN 1: GALERIE ══ -->
+  <div id="screen-galerie" class="screen visible">
+    <div class="tip-box">
+      <div class="tip-icon">💡</div>
+      <p><strong>Formateur :</strong> Utilisez ce mémo pour introduire les 9 PGP. Cliquez sur chaque carte pour révéler des exemples concrets. Passez ensuite au jeu pour tester les stagiaires.</p>
+    </div>
+    <div class="pgp-grid" id="pgpGrid"></div>
+  </div>
+
+  <!-- ══ SCREEN 2: JEU DE TRI ══ -->
+  <div id="screen-jeu" class="screen">
+    <div class="game-intro">
+      <div class="icon">🎯</div>
+      <div>
+        <h2>Quel principe est appliqué ?</h2>
+        <p>Lisez chaque situation d'entreprise et identifiez le Principe Général de Prévention (PGP) mis en œuvre. 10 scénarios issus du terrain.</p>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="lbl"><span id="progLabel">Scénario 1 / 10</span><span id="progPct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+
+    <div id="gameArea">
+      <div class="scenario-box">
+        <div class="scenario-label">SITUATION D'ENTREPRISE</div>
+        <div class="scenario-num" id="scenNum"></div>
+        <div class="scenario-text" id="scenText"></div>
+        <div class="scenario-question" id="scenQ">→ Quel Principe Général de Prévention est appliqué ?</div>
+      </div>
+      <div class="choices-grid" id="choicesGrid"></div>
+      <div class="feedback-box" id="feedbackBox">
+        <h3 id="feedbackTitle"></h3>
+        <p id="feedbackText"></p>
+        <div class="principle" id="feedbackPrinciple"></div>
+      </div>
+      <button class="btn-next" id="btnNext" onclick="nextQuestion()">QUESTION SUIVANTE →</button>
+    </div>
+
+    <div class="results-wrap" id="resultsJeu">
+      <div class="medal" id="medalJeu"></div>
+      <h2>RÉSULTAT FINAL</h2>
+      <div class="result-score" id="scoreResultJeu"></div>
+      <div class="result-sub" id="subResultJeu"></div>
+      <button class="btn-restart" onclick="restartGame()">↺ REJOUER</button>
+      <button class="btn-next visible" style="display:inline-block" onclick="showScreen('vraifaux')">VRAI / FAUX →</button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 3: HIÉRARCHIE ══ -->
+  <div id="screen-hierarchie" class="screen">
+    <div class="hier-title">HIÉRARCHIE DES MESURES</div>
+    <div class="hier-sub">Du plus efficace (élimination du danger) au moins efficace (protection individuelle) — à mémoriser dans l'ordre !</div>
+    <div class="pyramid">
+      <div class="pyra-level lv1">
+        <div class="pyra-rank">1</div>
+        <div class="pyra-content">
+          <h3>🚫 SUPPRESSION DU DANGER</h3>
+          <p>Éliminer totalement le danger à la source. C'est la mesure la plus efficace car le risque n'existe plus.</p>
+          <div class="examples">Ex : Arrêter d'utiliser un produit cancérigène · Supprimer une machine défectueuse · Automatiser une tâche dangereuse</div>
+        </div>
+      </div>
+      <div class="pyra-level lv2">
+        <div class="pyra-rank">2</div>
+        <div class="pyra-content">
+          <h3>🔄 SUBSTITUTION PAR MOINS DANGEREUX</h3>
+          <p>Remplacer le danger par quelque chose de moins nocif quand la suppression totale est impossible.</p>
+          <div class="examples">Ex : Remplacer un solvant chimique par un produit aqueux · Utiliser un outil électrique moins bruyant · CMR → produit moins toxique</div>
+        </div>
+      </div>
+      <div class="pyra-level lv3">
+        <div class="pyra-rank">3</div>
+        <div class="pyra-content">
+          <h3>🛡️ PROTECTION COLLECTIVE (EPC)</h3>
+          <p>Protéger simultanément plusieurs salariés. Toujours prioritaire sur la protection individuelle.</p>
+          <div class="examples">Ex : Garde-corps · Capotage de machines · Ventilation générale · Signalisation · Balisage de zone</div>
+        </div>
+      </div>
+      <div class="pyra-level lv4">
+        <div class="pyra-rank">4</div>
+        <div class="pyra-content">
+          <h3>🦺 PROTECTION INDIVIDUELLE (EPI)</h3>
+          <p>Protéger chaque salarié individuellement. Mesure complémentaire, jamais première solution.</p>
+          <div class="examples">Ex : Casque · Gants · Lunettes · Bouchons d'oreilles · Harnais · Chaussures de sécurité</div>
+          <div class="dernier-recours">⚠️ DERNIER RECOURS — Ne remplace pas les mesures collectives</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="tip-box">
+      <div class="tip-icon">🎓</div>
+      <p><strong>Activité formateur :</strong> Donnez 3 situations d'entreprise. Les stagiaires doivent, pour chacune, proposer une mesure à chaque niveau de la hiérarchie, de la suppression jusqu'à l'EPI.</p>
+    </div>
+
+    <div class="pgp-grid" style="grid-template-columns: repeat(auto-fill, minmax(250px,1fr));">
+      <div class="pgp-card" style="--accent: #2ECC71">
+        <div class="pgp-num">EX</div>
+        <div class="pgp-icon">🏭</div>
+        <div class="pgp-title">Cas : Bruit machine (85 dB)</div>
+        <div class="pgp-desc">Classez les solutions par niveau :</div>
+        <ul class="pgp-examples" style="display:block; margin-top:10px;">
+          <li>1. Remplacer la machine par silencieuse</li>
+          <li>2. Capotage insonorisant</li>
+          <li>3. Bouchons d'oreilles (EPI)</li>
+        </ul>
+      </div>
+      <div class="pgp-card" style="--accent: #3A7BD5">
+        <div class="pgp-num">EX</div>
+        <div class="pgp-icon">🧪</div>
+        <div class="pgp-title">Cas : Produit chimique CMR</div>
+        <div class="pgp-desc">Classez les solutions par niveau :</div>
+        <ul class="pgp-examples" style="display:block; margin-top:10px;">
+          <li>1. Supprimer l'usage du produit</li>
+          <li>2. Substituer par produit non-CMR</li>
+          <li>3. Ventilation + gants + masque (EPI)</li>
+        </ul>
+      </div>
+      <div class="pgp-card" style="--accent: #E8A020">
+        <div class="pgp-num">EX</div>
+        <div class="pgp-icon">🪜</div>
+        <div class="pgp-title">Cas : Travaux en hauteur</div>
+        <div class="pgp-desc">Classez les solutions par niveau :</div>
+        <ul class="pgp-examples" style="display:block; margin-top:10px;">
+          <li>1. Travailler au sol (suppression)</li>
+          <li>2. Nacelle élévatrice + garde-corps</li>
+          <li>3. Harnais antichute (EPI)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 4: VRAI / FAUX ══ -->
+  <div id="screen-vraifaux" class="screen">
+    <div class="game-intro">
+      <div class="icon">⚡</div>
+      <div>
+        <h2>Vrai ou Faux ?</h2>
+        <p>15 affirmations sur les PGP et la prévention. Testez vos réflexes ! Chaque bonne réponse vous rapporte des points.</p>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="lbl"><span id="vfProgLabel">Question 1 / 15</span><span id="vfProgPct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="vfProgFill" style="width:0%"></div></div>
+    </div>
+
+    <div id="vfGameArea">
+      <div class="vf-card">
+        <div class="vf-badge" id="vfBadge">PRINCIPE N°1</div>
+        <div class="vf-statement" id="vfStatement"></div>
+        <div class="vf-btns">
+          <button class="vf-btn vrai" id="btnVrai" onclick="answerVF(true)">✓ VRAI</button>
+          <button class="vf-btn faux" id="btnFaux" onclick="answerVF(false)">✗ FAUX</button>
+        </div>
+        <div class="vf-feedback" id="vfFeedback">
+          <p id="vfFeedbackText"></p>
+          <div class="pgp-ref" id="vfFeedbackRef"></div>
+        </div>
+        <button class="btn-next" id="btnVFNext" onclick="nextVF()">QUESTION SUIVANTE →</button>
+      </div>
+    </div>
+
+    <div class="results-wrap" id="resultsVF">
+      <div class="medal" id="medalVF"></div>
+      <h2>RÉSULTAT FINAL</h2>
+      <div class="result-score" id="scoreResultVF"></div>
+      <div class="result-sub" id="subResultVF"></div>
+      <button class="btn-restart" onclick="restartVF()">↺ REJOUER</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+/* ══════════════════════════════════════════
+   DATA
+══════════════════════════════════════════ */
+
+const pgpData = [
+  {
+    num:1, icon:'🚫', title:'Éviter les risques',
+    desc:'Supprimer le danger ou l\'exposition au danger avant tout autre action.',
+    tag:'Élimination', accent:'#B83251',
+    examples:['Arrêter d\'utiliser un produit dangereux','Supprimer une étape de travail à risque','Automatiser une tâche pénible']
+  },
+  {
+    num:2, icon:'🔍', title:'Évaluer les risques',
+    desc:'Analyser les risques qui ne peuvent être évités pour les hiérarchiser et agir en priorité sur les plus graves.',
+    tag:'Évaluation', accent:'#E8A020',
+    examples:['Réaliser le Document Unique (DUER)','Analyser les postes de travail','Identifier les dangers par unité de travail']
+  },
+  {
+    num:3, icon:'🎯', title:'Combattre les risques à la source',
+    desc:'Agir dès la conception du poste, de l\'équipement ou du produit, pas seulement à posteriori.',
+    tag:'À la source', accent:'#3A7BD5',
+    examples:['Concevoir un outil ergonomique','Prévoir la sécurité dès la phase de chantier','Intégrer des protections dès la fabrication']
+  },
+  {
+    num:4, icon:'🧩', title:'Adapter le travail à l\'homme',
+    desc:'Tenir compte des différences individuelles pour réduire effets nocifs sur la santé.',
+    tag:'Ergonomie', accent:'#2ECC71',
+    examples:['Adapter le poste aux morphologies','Varier les tâches pour limiter les TMS','Ajuster les cadences de travail']
+  },
+  {
+    num:5, icon:'📈', title:'Tenir compte de l\'évolution technique',
+    desc:'Intégrer les progrès technologiques pour améliorer la sécurité en continu.',
+    tag:'Innovation', accent:'#9B59B6',
+    examples:['Remplacer une machine ancienne par une version sécurisée','Mettre à jour les procédures selon les nouvelles normes','Utiliser de nouveaux EPI plus performants']
+  },
+  {
+    num:6, icon:'🔄', title:'Remplacer le dangereux',
+    desc:'Substituer ce qui est dangereux par ce qui est sans danger ou moins dangereux.',
+    tag:'Substitution', accent:'#1ABC9C',
+    examples:['Remplacer un produit CMR par un produit inoffensif','Utiliser un solvant aqueux au lieu de chimique','Changer une technique de découpe']
+  },
+  {
+    num:7, icon:'📋', title:'Planifier la prévention',
+    desc:'Intégrer technique, organisation et conditions de travail dans une démarche globale et cohérente.',
+    tag:'Organisation', accent:'#F39C12',
+    examples:['Plan annuel de prévention','Intégrer sécurité dans le planning chantier','Coordonner les entreprises intervenantes']
+  },
+  {
+    num:8, icon:'👥', title:'Protéger collectivement d\'abord',
+    desc:'Donner la priorité aux mesures protégeant l\'ensemble des salariés sur les mesures individuelles.',
+    tag:'EPC > EPI', accent:'#E74C3C',
+    examples:['Installer des garde-corps plutôt que des harnais','Ventilation générale avant masque','Capotage machine avant bouchons d\'oreilles']
+  },
+  {
+    num:9, icon:'📢', title:'Donner des instructions appropriées',
+    desc:'Former et informer les salariés sur les risques et les mesures de prévention.',
+    tag:'Formation', accent:'#3498DB',
+    examples:['Formation SST obligatoire','Affichage des consignes de sécurité','Information sur les risques chimiques']
+  }
+];
+
+const scenarios = [
+  {
+    text: "Dans une imprimerie, le responsable remplace un encre à base de solvant chimique (CMR) par une encre à base d'eau, moins toxique pour les opérateurs.",
+    correct: 6, correctLabel: 'PGP 6 – Remplacer le dangereux',
+    explanation: "L'employeur substitue un produit dangereux (CMR) par un produit moins nocif. C'est le principe de substitution (PGP 6)."
+  },
+  {
+    text: "Un chef de chantier installe des garde-corps fixes sur les bords d'un plancher surélevé plutôt que de distribuer des harnais anti-chute.",
+    correct: 8, correctLabel: 'PGP 8 – Priorité protection collective',
+    explanation: "Les garde-corps protègent tous les travailleurs simultanément. La protection collective (EPC) est prioritaire sur l'EPI individuel (PGP 8)."
+  },
+  {
+    text: "L'employeur fait réaliser une évaluation des risques dans chaque unité de travail et la consigne dans le Document Unique (DUER).",
+    correct: 2, correctLabel: 'PGP 2 – Évaluer les risques',
+    explanation: "La mise à jour du DUER est l'outil concret du PGP 2 : évaluer les risques qui ne peuvent être évités pour les maîtriser."
+  },
+  {
+    text: "Un opérateur travaillant sur une machine bruyante peut choisir ses horaires de pause de façon à limiter son exposition journalière au bruit.",
+    correct: 4, correctLabel: 'PGP 4 – Adapter le travail à l\'homme',
+    explanation: "L'organisation flexible des pauses adapte les conditions de travail aux capacités humaines pour réduire l'effet nocif sur la santé (PGP 4)."
+  },
+  {
+    text: "Une entreprise décide de supprimer totalement l'opération de grenaillage manuel en robotisant entièrement le poste.",
+    correct: 1, correctLabel: 'PGP 1 – Éviter le risque',
+    explanation: "La robotisation supprime le danger et l'exposition du travailleur. C'est la mesure la plus efficace : éviter le risque à la source (PGP 1)."
+  },
+  {
+    text: "Le plan de prévention annuel d'une entreprise intègre à la fois les mesures techniques, organisationnelles et humaines pour l'année à venir.",
+    correct: 7, correctLabel: 'PGP 7 – Planifier la prévention',
+    explanation: "Intégrer sécurité dans une démarche globale (technique + organisation + conditions de travail) est le cœur du PGP 7."
+  },
+  {
+    text: "L'entreprise organise une formation obligatoire pour tous les nouveaux entrants sur les risques propres à leur poste et les mesures en place.",
+    correct: 9, correctLabel: 'PGP 9 – Instructions appropriées',
+    explanation: "Former et informer les salariés sur les risques est exactement le PGP 9 : donner des instructions appropriées."
+  },
+  {
+    text: "Lors de la conception d'un nouvel atelier, l'architecte intègre dès les plans une ventilation mécanique et des allées de circulation sécurisées.",
+    correct: 3, correctLabel: 'PGP 3 – Combattre à la source',
+    explanation: "Agir dès la phase de conception pour éviter les risques futurs, c'est combattre les risques à la source (PGP 3)."
+  },
+  {
+    text: "Le responsable sécurité remplace une vieille presse hydraulique par un modèle récent équipé d'un système de sécurité bi-manuel conforme aux dernières normes.",
+    correct: 5, correctLabel: 'PGP 5 – Tenir compte des évolutions techniques',
+    explanation: "Intégrer le progrès technologique pour améliorer la sécurité est le PGP 5 : tenir compte de l'évolution de la technique."
+  },
+  {
+    text: "Pour réduire les TMS des opérateurs de conditionnement, le poste est réaménagé : hauteur de travail ajustable, convoyeur motorisé, rotation des tâches toutes les heures.",
+    correct: 4, correctLabel: 'PGP 4 – Adapter le travail à l\'homme',
+    explanation: "Réaménager le poste pour tenir compte des capacités humaines et réduire les effets nocifs sur la santé : PGP 4."
+  }
+];
+
+const vfQuestions = [
+  { statement:"Les EPI (équipements de protection individuelle) sont la première mesure à mettre en place lorsqu'un risque est identifié.", answer:false, pgp:'PGP 8', explanation:"FAUX. Les EPI sont le dernier recours. Il faut d'abord chercher à supprimer, substituer, puis protéger collectivement (PGP 8)." },
+  { statement:"Le Document Unique d'Évaluation des Risques (DUER) est l'outil concret du PGP n°2.", answer:true, pgp:'PGP 2', explanation:"VRAI. Le DUER recense et évalue tous les risques de l'entreprise, conformément au PGP 2." },
+  { statement:"Remplacer un solvant chimique par un nettoyant aqueux moins toxique est une application du PGP n°6 (substitution).", answer:true, pgp:'PGP 6', explanation:"VRAI. La substitution du dangereux par du moins dangereux est exactement le PGP 6." },
+  { statement:"Un garde-corps est un EPI car il protège le salarié contre les chutes.", answer:false, pgp:'PGP 8', explanation:"FAUX. Le garde-corps est une EPC (protection collective) car il protège simultanément tous les travailleurs exposés, sans qu'ils aient à faire une action particulière." },
+  { statement:"La formation SST des salariés est une application du PGP n°9 (instructions appropriées).", answer:true, pgp:'PGP 9', explanation:"VRAI. Former et informer les travailleurs sur les risques et les mesures de prévention correspond au PGP 9." },
+  { statement:"Automatiser un poste de travail dangereux est une application du PGP n°1 (éviter le risque).", answer:true, pgp:'PGP 1', explanation:"VRAI. L'automatisation supprime l'exposition du travailleur au danger. C'est éviter le risque (PGP 1)." },
+  { statement:"Le PGP n°4 consiste à adapter le salarié au poste de travail grâce à des formations.", answer:false, pgp:'PGP 4', explanation:"FAUX. C'est l'inverse : le PGP 4 demande d'adapter le TRAVAIL à l'HOMME (ergonomie, organisation, cadences), pas d'adapter l'homme au travail." },
+  { statement:"Combattre les risques à la source (PGP 3) signifie agir lors de la conception des postes et des équipements.", answer:true, pgp:'PGP 3', explanation:"VRAI. Agir dès la conception plutôt qu'a posteriori, c'est combattre à la source (PGP 3)." },
+  { statement:"Si un risque ne peut pas être évité, l'employeur n'a aucune obligation légale supplémentaire.", answer:false, pgp:'PGP 2', explanation:"FAUX. Si le risque ne peut être évité, l'employeur doit l'évaluer (PGP 2), le combattre à la source, et mettre en place des mesures de prévention adaptées." },
+  { statement:"La planification de la prévention (PGP 7) ne concerne que les aspects techniques, pas l'organisation.", answer:false, pgp:'PGP 7', explanation:"FAUX. Le PGP 7 intègre technique, organisation ET conditions de travail dans une démarche globale et cohérente." },
+  { statement:"Mettre à jour les procédures de sécurité suite à l'acquisition d'une nouvelle machine relève du PGP n°5.", answer:true, pgp:'PGP 5', explanation:"VRAI. Intégrer les progrès technologiques dans les pratiques de prévention est le PGP 5 (tenir compte de l'évolution de la technique)." },
+  { statement:"Un bouchon d'oreille jetable est plus efficace qu'un capotage acoustique pour protéger un opérateur exposé au bruit.", answer:false, pgp:'PGP 8', explanation:"FAUX. Le capotage acoustique (EPC) est plus efficace car il supprime ou réduit le bruit à la source, sans dépendre du comportement du salarié (PGP 8)." },
+  { statement:"Le SST (Sauveteur Secouriste du Travail) peut contribuer à l'évaluation des risques en signalant des situations dangereuses.", answer:true, pgp:'PGP 2 – C7/C8', explanation:"VRAI. Le SST, acteur terrain de la prévention, contribue à identifier et remonter les situations dangereuses, alimentant ainsi l'évaluation des risques (C7, C8)." },
+  { statement:"Le PGP n°1 (éviter les risques) s'applique uniquement aux risques chimiques.", answer:false, pgp:'PGP 1', explanation:"FAUX. Le PGP 1 s'applique à tous les types de risques : mécaniques, chimiques, physiques, psychosociaux, etc." },
+  { statement:"Donner la priorité à la protection collective sur la protection individuelle est le PGP n°8.", answer:true, pgp:'PGP 8', explanation:"VRAI. Le Code du travail impose de préférer les mesures de protection collective (EPC) aux mesures de protection individuelle (EPI) — PGP 8." }
+];
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let score = 0, streak = 0, totalAnswered = 0;
+let currentQ = 0, answeredQ = false;
+let currentVF = 0, answeredVF = false;
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function updateScorebar() {
+  document.getElementById('scoreVal').textContent = score;
+  document.getElementById('streakVal').textContent = streak;
+  document.getElementById('totalVal').textContent = totalAnswered;
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('visible');
+  const tabs = document.querySelectorAll('.tab');
+  const map = { galerie:0, jeu:1, hierarchie:2, vraifaux:3 };
+  tabs[map[name]].classList.add('active');
+}
+
+/* ══════════════════════════════════════════
+   GALERIE
+══════════════════════════════════════════ */
+function buildGalerie() {
+  const grid = document.getElementById('pgpGrid');
+  pgpData.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'pgp-card';
+    card.style.setProperty('--accent', p.accent);
+    card.innerHTML = `
+      <div class="pgp-num">${p.num}</div>
+      <div class="pgp-icon">${p.icon}</div>
+      <div class="pgp-title">PGP ${p.num} — ${p.title}</div>
+      <div class="pgp-desc">${p.desc}</div>
+      <div class="pgp-tag">${p.tag}</div>
+      <div class="pgp-examples">
+        <h4>Exemples concrets</h4>
+        <ul>${p.examples.map(e => `<li>${e}</li>`).join('')}</ul>
+      </div>
+    `;
+    card.addEventListener('click', () => card.classList.toggle('expanded'));
+    grid.appendChild(card);
+  });
+}
+
+/* ══════════════════════════════════════════
+   JEU SCÉNARIOS
+══════════════════════════════════════════ */
+function shuffled(arr) { return [...arr].sort(() => Math.random() - .5); }
+
+function loadQuestion() {
+  const s = scenarios[currentQ];
+  answeredQ = false;
+  const total = scenarios.length;
+
+  document.getElementById('scenNum').textContent = `Scénario ${currentQ + 1} sur ${total}`;
+  document.getElementById('scenText').textContent = s.text;
+  document.getElementById('progLabel').textContent = `Scénario ${currentQ + 1} / ${total}`;
+  document.getElementById('progPct').textContent = Math.round(currentQ / total * 100) + '%';
+  document.getElementById('progFill').style.width = (currentQ / total * 100) + '%';
+
+  // Build 4 choices: correct + 3 distractors
+  const allPgp = pgpData.map(p => ({ num: p.num, label: `PGP ${p.num} — ${p.title}` }));
+  const correct = allPgp.find(p => p.num === s.correct);
+  const distractors = shuffled(allPgp.filter(p => p.num !== s.correct)).slice(0, 3);
+  const choices = shuffled([correct, ...distractors]);
+
+  const grid = document.getElementById('choicesGrid');
+  grid.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="choice-num">PGP ${c.num}</span>${c.label.replace(`PGP ${c.num} — `, '')}`;
+    btn.addEventListener('click', () => handleAnswer(c.num, s));
+    grid.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedbackBox');
+  fb.className = 'feedback-box';
+  document.getElementById('btnNext').className = 'btn-next';
+}
+
+function handleAnswer(chosen, s) {
+  if (answeredQ) return;
+  answeredQ = true;
+  totalAnswered++;
+
+  const btns = document.querySelectorAll('.choice-btn');
+  btns.forEach(btn => {
+    btn.disabled = true;
+    const pNum = parseInt(btn.querySelector('.choice-num').textContent.replace('PGP ',''));
+    if (pNum === s.correct) btn.classList.add('correct');
+    else if (pNum === chosen && chosen !== s.correct) btn.classList.add('wrong');
+  });
+
+  const ok = chosen === s.correct;
+  if (ok) { score += 10; streak++; } else { streak = 0; }
+  updateScorebar();
+
+  const fb = document.getElementById('feedbackBox');
+  fb.className = 'feedback-box visible ' + (ok ? 'ok' : 'ko');
+  document.getElementById('feedbackTitle').textContent = ok ? '✅ Bonne réponse !' : '❌ Pas tout à fait…';
+  document.getElementById('feedbackText').textContent = s.explanation;
+  document.getElementById('feedbackPrinciple').textContent = '→ ' + s.correctLabel;
+  document.getElementById('btnNext').className = 'btn-next visible';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= scenarios.length) {
+    showJeuResults();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showJeuResults() {
+  document.getElementById('gameArea').style.display = 'none';
+  const r = document.getElementById('resultsJeu');
+  r.classList.add('visible');
+  const pct = Math.round(score / (scenarios.length * 10) * 100);
+  document.getElementById('scoreResultJeu').textContent = score + ' pts';
+  document.getElementById('subResultJeu').textContent = `${pct}% de réussite sur ${scenarios.length} scénarios`;
+  const medal = pct >= 80 ? '🥇' : pct >= 60 ? '🥈' : '🥉';
+  document.getElementById('medalJeu').textContent = medal;
+}
+
+function restartGame() {
+  currentQ = 0; score = 0; streak = 0; totalAnswered = 0;
+  updateScorebar();
+  document.getElementById('gameArea').style.display = 'block';
+  document.getElementById('resultsJeu').classList.remove('visible');
+  loadQuestion();
+}
+
+/* ══════════════════════════════════════════
+   VRAI / FAUX
+══════════════════════════════════════════ */
+function loadVF() {
+  const q = vfQuestions[currentVF];
+  answeredVF = false;
+  const total = vfQuestions.length;
+
+  document.getElementById('vfBadge').textContent = q.pgp;
+  document.getElementById('vfStatement').textContent = q.statement;
+  document.getElementById('vfProgLabel').textContent = `Question ${currentVF + 1} / ${total}`;
+  document.getElementById('vfProgPct').textContent = Math.round(currentVF / total * 100) + '%';
+  document.getElementById('vfProgFill').style.width = (currentVF / total * 100) + '%';
+
+  document.getElementById('btnVrai').className = 'vf-btn vrai';
+  document.getElementById('btnFaux').className = 'vf-btn faux';
+  document.getElementById('btnVrai').disabled = false;
+  document.getElementById('btnFaux').disabled = false;
+  document.getElementById('vfFeedback').className = 'vf-feedback';
+  document.getElementById('btnVFNext').className = 'btn-next';
+}
+
+function answerVF(chosen) {
+  if (answeredVF) return;
+  answeredVF = true;
+  totalAnswered++;
+
+  const q = vfQuestions[currentVF];
+  const ok = chosen === q.answer;
+  if (ok) { score += 10; streak++; } else { streak = 0; }
+  updateScorebar();
+
+  document.getElementById('btnVrai').disabled = true;
+  document.getElementById('btnFaux').disabled = true;
+
+  if (chosen === true) {
+    document.getElementById('btnVrai').className = 'vf-btn vrai ' + (ok ? 'selected-ok' : 'selected-ko');
+    if (!ok) document.getElementById('btnFaux').className = 'vf-btn faux selected-ok';
+  } else {
+    document.getElementById('btnFaux').className = 'vf-btn faux ' + (ok ? 'selected-ok' : 'selected-ko');
+    if (!ok) document.getElementById('btnVrai').className = 'vf-btn vrai selected-ok';
+  }
+
+  const fb = document.getElementById('vfFeedback');
+  fb.className = 'vf-feedback visible ' + (ok ? 'ok' : 'ko');
+  document.getElementById('vfFeedbackText').textContent = q.explanation;
+  document.getElementById('vfFeedbackRef').textContent = '→ Référence : ' + q.pgp;
+  document.getElementById('btnVFNext').className = 'btn-next visible';
+}
+
+function nextVF() {
+  currentVF++;
+  if (currentVF >= vfQuestions.length) {
+    showVFResults();
+  } else {
+    loadVF();
+  }
+}
+
+function showVFResults() {
+  document.getElementById('vfGameArea').style.display = 'none';
+  const r = document.getElementById('resultsVF');
+  r.classList.add('visible');
+  const pct = Math.round(score / (vfQuestions.length * 10) * 100);
+  document.getElementById('scoreResultVF').textContent = score + ' pts';
+  document.getElementById('subResultVF').textContent = `${pct}% de réussite sur ${vfQuestions.length} questions`;
+  const medal = pct >= 80 ? '🥇' : pct >= 60 ? '🥈' : '🥉';
+  document.getElementById('medalVF').textContent = medal;
+}
+
+function restartVF() {
+  currentVF = 0; score = 0; streak = 0; totalAnswered = 0;
+  updateScorebar();
+  document.getElementById('vfGameArea').style.display = 'block';
+  document.getElementById('resultsVF').classList.remove('visible');
+  loadVF();
+}
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+buildGalerie();
+loadQuestion();
+loadVF();
+</script>
+</body>
+</html>
